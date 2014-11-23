@@ -1,41 +1,76 @@
 import arb.soundcipher.*;
 
-SoundCipher sc;
-PVector[] centers;
-int inside = -1;  // -1 -> outside, otherwise index indicates which circle
+class SoundSensor {
+  float pitch;  // Depending on the soundcipher library
+  color c;      // Color for the button
+  float x, y;   // Where we will put this object on the screen
+  float r;      // radius
 
-//float[] pitches = {
-//  60, 62, 64, 65, 67,69,55
-//};
+  SoundSensor(float pitch, color c, float x, float y, float r) {
+    this.pitch = pitch;    
+    this.c = c;
+    this.x = x;
+    this.y = y;
+    this.r = r;
+  }
 
-float[] pitches = {
-  55, 60, 62, 64, 65, 67,69
-};
-void setup() {
-  sc = new SoundCipher(this);
-  centers = new PVector[7];
-  
-  centers[0] = new PVector(40, 40);
-  centers[1] = new PVector(120, 40);
-  centers[2] = new PVector(200, 40);
-  
-  centers[4] = new PVector(120, 120);
-  centers[3] = new PVector(200, 120);
+  SoundSensor(float pitch, color c, float x, float y) {
+    this(pitch, c, x, y, 40);
+  }
 
-  centers[5] = new PVector(120, 200);
-  
-  centers[6] = new PVector(120, 280);
-  
-  //frameRate(360); // Do we have lag?
-  smooth();
-  size(240, 320);
+  SoundSensor(SoundSensor s) {
+    this(s.pitch, s.c, s.x, s.y, s.r);
+  }
 }
+
+
+SoundCipher sc;
+ArrayList<SoundSensor> sensors;
+int inside;
+
+void setup() {
+  sc      = new SoundCipher(this);
+  sensors = new ArrayList<SoundSensor>();
+  inside  = -1;  // -1 -> outside, otherwise index indicates which circle
+
+  sensors.add(new SoundSensor(55, color(#FF0000), 40, 40));
+  sensors.add(new SoundSensor(60, color(#808000), 120, 40));
+  sensors.add(new SoundSensor(62, color(#00FFFF), 200, 40));
+  sensors.add(new SoundSensor(64, color(#FF00FF), 200, 120));
+  sensors.add(new SoundSensor(65, color(#A000A0), 120, 120));
+  sensors.add(new SoundSensor(67, color(#FF0000), 120, 200));
+  sensors.add(new SoundSensor(69, color(#FFFF00), 120, 280));
+
+  smooth();
+  size(800, 600);
+}
+
+
+void mouseClicked(){
+  for (int i=0; i<sensors.size (); i++) {
+    if (dist(mouseX, mouseY, sensors.get(i).x, sensors.get(i).y)<=sensors.get(i).r) {
+      sensors.add(new SoundSensor(sensors.get(i)));
+      break;
+    }
+  }
+}
+
+void mouseDragged(){
+  for (int i=0; i<sensors.size (); i++) {
+    if (dist(mouseX, mouseY, sensors.get(i).x, sensors.get(i).y)<=sensors.get(i).r) {
+      sensors.get(i).x = mouseX;
+      sensors.get(i).y = mouseY;
+      break;
+    }
+  }
+}
+
 
 void mouseMoved() {
   boolean outside = true;
-  for (int i=0; i<centers.length; i++) {
-    if (dist(mouseX, mouseY, centers[i].x, centers[i].y)<=40) {
-      if (inside!=i) sc.playNote(pitches[i], 80, 1);
+  for (int i=0; i<sensors.size (); i++) {
+    if (dist(mouseX, mouseY, sensors.get(i).x, sensors.get(i).y)<=sensors.get(i).r) {
+      if (inside!=i) sc.playNote(sensors.get(i).pitch, 80, 1);
       inside = i;
       outside = false;
     }
@@ -46,11 +81,12 @@ void mouseMoved() {
 void draw() {
   background(10, 100, 0);
   noStroke();
-  int c = 0;
-  for (int i=0; i<centers.length; i++) {
-    //fill(c+=40);
-    fill((float)i/(pitches.length-1)*255);
-    ellipse(centers[i].x, centers[i].y, 80, 80);
+
+  for (int i=0; i<sensors.size (); i++) {
+    fill(sensors.get(i).c);
+    ellipse(sensors.get(i).x, sensors.get(i).y, sensors.get(i).r*2, sensors.get(i).r*2);
+    fill(255);
+    text(str(int(sensors.get(i).pitch)), sensors.get(i).x-10, sensors.get(i).y);
   }
 }
 
