@@ -21,17 +21,30 @@ class SoundSensor {
   SoundSensor(SoundSensor s) {
     this(s.pitch, s.c, s.x, s.y, s.r);
   }
+
+  boolean isInside(float x, float y) {
+    if (dist(x, y, this.x, this.y)<=this.r)
+      return true;
+    else
+      return false;
+  }
+
+  boolean isMouseInside() {
+    return this.isInside(mouseX, mouseY);
+  }
 }
 
 
 SoundCipher sc;
 ArrayList<SoundSensor> sensors;
-int inside;
+boolean inside;
 
 void setup() {
   sc      = new SoundCipher(this);
+  sc.instrument = sc.CELLO;
+
   sensors = new ArrayList<SoundSensor>();
-  inside  = -1;  // -1 -> outside, otherwise index indicates which circle
+  inside  = false;
 
   sensors.add(new SoundSensor(55, color(#FF0000), 40, 40));
   sensors.add(new SoundSensor(60, color(#808000), 120, 40));
@@ -46,18 +59,18 @@ void setup() {
 }
 
 
-void mouseClicked(){
+void mouseClicked() {
   for (int i=0; i<sensors.size (); i++) {
-    if (dist(mouseX, mouseY, sensors.get(i).x, sensors.get(i).y)<=sensors.get(i).r) {
+    if (sensors.get(i).isMouseInside()) {
       sensors.add(new SoundSensor(sensors.get(i)));
       break;
     }
   }
 }
 
-void mouseDragged(){
+void mouseDragged() {
   for (int i=0; i<sensors.size (); i++) {
-    if (dist(mouseX, mouseY, sensors.get(i).x, sensors.get(i).y)<=sensors.get(i).r) {
+    if (sensors.get(i).isMouseInside()) {
       sensors.get(i).x = mouseX;
       sensors.get(i).y = mouseY;
       break;
@@ -67,15 +80,26 @@ void mouseDragged(){
 
 
 void mouseMoved() {
-  boolean outside = true;
+  ArrayList<Float> pitchesAL = new ArrayList<Float>();
+
   for (int i=0; i<sensors.size (); i++) {
-    if (dist(mouseX, mouseY, sensors.get(i).x, sensors.get(i).y)<=sensors.get(i).r) {
-      if (inside!=i) sc.playNote(sensors.get(i).pitch, 80, 1);
-      inside = i;
-      outside = false;
+    if (sensors.get(i).isMouseInside()) {
+      pitchesAL.add(sensors.get(i).pitch);
     }
   }
-  if (outside) inside = -1;
+
+  int n = pitchesAL.size(); 
+  float [] pitches = new float[n];
+  for (int i=0; i<n; i++) {
+    pitches[i] = pitchesAL.get(i);
+  }
+
+
+  if (!inside)
+    sc.playChord(pitches, 80, 2);
+
+  if (n==0) inside = false;
+  else  inside = true;
 }
 
 void draw() {
