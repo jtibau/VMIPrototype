@@ -1,4 +1,5 @@
 import arb.soundcipher.*;
+import java.util.*;
 
 class SoundSensor {
   float pitch;  // Depending on the soundcipher library
@@ -34,17 +35,22 @@ class SoundSensor {
   }
 }
 
+boolean arraysAreEqual(ArrayList<Float> a1, ArrayList<Float> a2) {
+  HashSet<Float> set1 = new HashSet<Float>(a1);
+  HashSet<Float> set2 = new HashSet<Float>(a2);
+  return set1.equals(set2);
+}
 
 SoundCipher sc;
 ArrayList<SoundSensor> sensors;
-boolean inside;
+ArrayList<Float> inside;
 
 void setup() {
   sc      = new SoundCipher(this);
   sc.instrument = sc.CELLO;
 
   sensors = new ArrayList<SoundSensor>();
-  inside  = false;
+  inside = new ArrayList<Float>();
 
   sensors.add(new SoundSensor(55, color(#FF0000), 40, 40));
   sensors.add(new SoundSensor(60, color(#808000), 120, 40));
@@ -88,18 +94,15 @@ void mouseMoved() {
     }
   }
 
-  int n = pitchesAL.size(); 
-  float [] pitches = new float[n];
-  for (int i=0; i<n; i++) {
-    pitches[i] = pitchesAL.get(i);
-  }
-
-
-  if (!inside)
+  if (!arraysAreEqual(inside, pitchesAL)) {
+    int n = pitchesAL.size(); 
+    float [] pitches = new float[n];
+    for (int i=0; i<n; i++) {
+      pitches[i] = pitchesAL.get(i);
+    }
     sc.playChord(pitches, 80, 2);
-
-  if (n==0) inside = false;
-  else  inside = true;
+    inside = pitchesAL;
+  }
 }
 
 void draw() {
