@@ -52,13 +52,14 @@ void setup() {
   sensors = new ArrayList<SoundSensor>();
   inside = new ArrayList<Float>();
 
-  sensors.add(new SoundSensor(55, color(#FF0000), 40, 40));
-  sensors.add(new SoundSensor(60, color(#808000), 120, 40));
-  sensors.add(new SoundSensor(62, color(#00FFFF), 200, 40));
-  sensors.add(new SoundSensor(64, color(#FF00FF), 200, 120));
-  sensors.add(new SoundSensor(65, color(#A000A0), 120, 120));
-  sensors.add(new SoundSensor(67, color(#FF0000), 120, 200));
-  sensors.add(new SoundSensor(69, color(#FFFF00), 120, 280));
+
+  sensors.add(new SoundSensor(55, color(255, 0, 0, 200), 40, 40));
+  sensors.add(new SoundSensor(60, color(128, 128, 0, 200), 120, 40));
+  sensors.add(new SoundSensor(62, color(0, 255, 255, 200), 200, 40));
+  sensors.add(new SoundSensor(64, color(255,0,255,200), 200, 120));
+  sensors.add(new SoundSensor(65, color(128,0,128,200), 120, 120));
+  sensors.add(new SoundSensor(67, color(255,0,0,200), 120, 200));
+  sensors.add(new SoundSensor(69, color(255,255,0,200), 120, 280));
 
   smooth();
   size(800, 600);
