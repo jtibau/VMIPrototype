@@ -1,5 +1,6 @@
 import arb.soundcipher.*;
 import java.util.*;
+import de.voidplus.leapmotion.*;
 
 class SoundSensor {
   float pitch;  // Depending on the soundcipher library
@@ -44,10 +45,14 @@ boolean arraysAreEqual(ArrayList<Float> a1, ArrayList<Float> a2) {
 SoundCipher sc;
 ArrayList<SoundSensor> sensors;
 ArrayList<Float> inside;
+LeapMotion leap;
+
 
 void setup() {
   sc      = new SoundCipher(this);
   sc.instrument = sc.CELLO;
+
+  leap = new LeapMotion(this);
 
   sensors = new ArrayList<SoundSensor>();
   inside = new ArrayList<Float>();
@@ -56,10 +61,10 @@ void setup() {
   sensors.add(new SoundSensor(55, color(255, 0, 0, 200), 40, 40));
   sensors.add(new SoundSensor(60, color(128, 128, 0, 200), 120, 40));
   sensors.add(new SoundSensor(62, color(0, 255, 255, 200), 200, 40));
-  sensors.add(new SoundSensor(64, color(255,0,255,200), 200, 120));
-  sensors.add(new SoundSensor(65, color(128,0,128,200), 120, 120));
-  sensors.add(new SoundSensor(67, color(255,0,0,200), 120, 200));
-  sensors.add(new SoundSensor(69, color(255,255,0,200), 120, 280));
+  sensors.add(new SoundSensor(64, color(255, 0, 255, 200), 200, 120));
+  sensors.add(new SoundSensor(65, color(128, 0, 128, 200), 120, 120));
+  sensors.add(new SoundSensor(67, color(255, 0, 0, 200), 120, 200));
+  sensors.add(new SoundSensor(69, color(255, 255, 0, 200), 120, 280));
 
   smooth();
   size(800, 600);
@@ -107,6 +112,7 @@ void mouseMoved() {
 }
 
 void draw() {
+  update();
   background(10, 100, 0);
   noStroke();
 
@@ -115,6 +121,38 @@ void draw() {
     ellipse(sensors.get(i).x, sensors.get(i).y, sensors.get(i).r*2, sensors.get(i).r*2);
     fill(255);
     text(str(int(sensors.get(i).pitch)), sensors.get(i).x-10, sensors.get(i).y);
+  }
+
+  for ( Hand hand : leap.getHands ()) {
+    PVector hp = hand.getPosition();
+    fill(0);
+    ellipse(hp.x, hp.y, 60, 60);
+  }
+}
+
+
+void update() {
+
+  for ( Hand hand : leap.getHands ()) {
+    PVector hp = hand.getPosition();
+
+    ArrayList<Float> pitchesAL = new ArrayList<Float>();
+
+    for (int i=0; i<sensors.size (); i++) {
+      if (sensors.get(i).isInside(hp.x,hp.y)) {
+        pitchesAL.add(sensors.get(i).pitch);
+      }
+    }
+
+    if (!arraysAreEqual(inside, pitchesAL)) {
+      int n = pitchesAL.size(); 
+      float [] pitches = new float[n];
+      for (int i=0; i<n; i++) {
+        pitches[i] = pitchesAL.get(i);
+      }
+      sc.playChord(pitches, 80, 2);
+      inside = pitchesAL;
+    }
   }
 }
 
