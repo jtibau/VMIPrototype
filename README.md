@@ -1,4 +1,4 @@
-VMI-Prototype
+VMIPrototype
 =============
 
 Prototype of a virtual musical instrument with a reconfigurable layout of keys. The implementation allows for controlling the instrument via hands-free gestures with a LeapMotion hand tracker.
