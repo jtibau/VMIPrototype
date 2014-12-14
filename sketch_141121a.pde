@@ -17,7 +17,7 @@ class SoundSensor {
   }
 
   SoundSensor(float pitch, color c, float x, float y) {
-    this(pitch, c, x, y, 40);
+    this(pitch, c, x, y, 80);
   }
 
   SoundSensor(SoundSensor s) {
@@ -67,9 +67,12 @@ void setup() {
   sensors.add(new SoundSensor(69, color(255, 255, 0, 200), 120, 280));
 
   smooth();
-  size(800, 600);
+  size(displayWidth, displayHeight);
 }
 
+boolean sketchFullScreen() {
+  return true;
+}
 
 void mouseClicked() {
   for (int i=0; i<sensors.size (); i++) {
@@ -124,9 +127,12 @@ void draw() {
   }
 
   for ( Hand hand : leap.getHands ()) {
-    PVector hp = hand.getPosition();
+    PVector pos = hand.getPosition();
+    int x = (int)((pos.x-300)/1300*displayWidth);
+    int y = (int)(((pos.y-700)/300)*displayHeight);
+
     fill(0);
-    ellipse(hp.x, hp.y, 60, 60);
+    ellipse(x,y, 60, 60);
   }
 }
 
@@ -134,12 +140,14 @@ void draw() {
 void update() {
 
   for ( Hand hand : leap.getHands ()) {
-    PVector hp = hand.getPosition();
+    PVector pos = hand.getPosition();
+    int x = (int)((pos.x-300)/1300*displayWidth);
+    int y = (int)(((pos.y-700)/300)*displayHeight);
 
     ArrayList<Float> pitchesAL = new ArrayList<Float>();
 
     for (int i=0; i<sensors.size (); i++) {
-      if (sensors.get(i).isInside(hp.x,hp.y)) {
+      if (sensors.get(i).isInside(x, y)) {
         pitchesAL.add(sensors.get(i).pitch);
       }
     }
